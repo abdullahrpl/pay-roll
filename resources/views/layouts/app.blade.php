@@ -13,16 +13,19 @@
     <style>
         :root {
             --primary-color: #3b7ddd;
-            --sidebar-bg: #222e3c;
-            --sidebar-text: #e9ecef;
+            --sidebar-bg: #2f3b47;
+            --sidebar-text: #f4f5f7;
+            --navbar-bg: #ffffff;
+            --hover-bg: #4e5d6a;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fb;
+            background-color: #f4f5f7;
             color: #495057;
         }
 
+        /* Sidebar */
         .sidebar {
             min-height: 100vh;
             background-color: var(--sidebar-bg);
@@ -33,19 +36,19 @@
             bottom: 0;
             left: 0;
             z-index: 100;
-            transition: all 0.3s;
-            box-shadow: 0 0 15px rgba(0, 0, 0, .1);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-header {
             padding: 1.5rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, .1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-brand {
             font-size: 1.25rem;
             font-weight: bold;
-            color: white;
+            color: var(--sidebar-text);
             text-decoration: none;
         }
 
@@ -55,11 +58,12 @@
 
         .sidebar-link {
             display: block;
-            padding: 0.75rem 1.25rem;
-            color: rgba(255, 255, 255, .7);
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             border-left: 3px solid transparent;
+            font-size: 0.95rem;
         }
 
         .sidebar-link i {
@@ -70,59 +74,42 @@
 
         .sidebar-link:hover,
         .sidebar-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, .1);
+            color: #ffffff;
+            background-color: var(--hover-bg);
             border-left-color: var(--primary-color);
         }
 
+        /* Content */
         .content {
             margin-left: 250px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             padding: 2rem;
         }
 
         .navbar {
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
+            background-color: var(--navbar-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        .card {
-            box-shadow: 0 0 10px rgba(0, 0, 0, .05);
-            border-radius: 0.5rem;
+        .navbar .navbar-brand {
+            font-size: 1.25rem;
+            color: #333;
+        }
+
+        .navbar .navbar-toggler {
             border: none;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, .05);
-            padding: 1rem 1.5rem;
-            font-weight: 600;
-        }
-
-        .btn-primary {
             background-color: var(--primary-color);
-            border-color: var(--primary-color);
         }
 
-        .table {
-            --bs-table-striped-bg: rgba(0, 0, 0, .02);
+        .navbar .navbar-toggler-icon {
+            background-color: white;
         }
 
-        .badge-success {
-            background-color: #28a745;
-        }
-
-        .badge-danger {
-            background-color: #dc3545;
-        }
-
-        .badge-warning {
-            background-color: #ffc107;
-        }
-
-        .badge-info {
-            background-color: #17a2b8;
+        .navbar .dropdown-menu {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            border: none;
         }
 
         .profile-image {
@@ -132,27 +119,21 @@
             object-fit: cover;
         }
 
-        .dropdown-menu {
-            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-            border: none;
-        }
-
-        .alert {
-            margin-bottom: 1.5rem;
-        }
-
         .stats-card {
-            border-left: 4px solid var(--primary-color);
-            transition: transform .3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            transition: transform 0.3s ease-in-out;
         }
 
         .stats-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .stats-card i {
-            font-size: 2rem;
-            color: var(--primary-color);
+        /* Hover effect for sidebar */
+        .sidebar-link:hover {
+            background-color: var(--primary-color);
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -189,7 +170,6 @@
 
                 <div class="sidebar-nav">
                     @if (auth()->user()->role === 'admin')
-                        <!-- Admin Menu -->
                         <a href="{{ route('admin.dashboard') }}"
                             class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -207,7 +187,6 @@
                             <i class="fas fa-money-check-alt"></i> Penggajian
                         </a>
                     @else
-                        <!-- Employee Menu -->
                         <a href="{{ route('employee.dashboard') }}"
                             class="sidebar-link {{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -236,7 +215,7 @@
                             <div class="dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random"
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random&size=128
                                         alt="Profile" class="profile-image me-2">
                                     <span>{{ auth()->user()->name }}</span>
                                 </a>

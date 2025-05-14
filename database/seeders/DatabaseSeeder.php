@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Admin User
         $adminUser = User::create([
-            'name' => 'Administrator',
+            'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Sample Employee User
         $employeeUser = User::create([
-            'name' => 'Karyawan Sample',
+            'name' => 'Karyawan',
             'email' => 'karyawan@example.com',
             'password' => Hash::make('karyawan123'),
             'role' => 'employee',

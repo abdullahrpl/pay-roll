@@ -3,146 +3,122 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
-    <div class="container-fluid p-0">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="h3">Dashboard Admin</h1>
-                <p class="text-muted">Selamat datang di panel admin sistem penggajian karyawan.</p>
-            </div>
-        </div>
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold">Dashboard Admin</h2>
+        <p class="text-muted">Selamat datang di panel admin sistem penggajian karyawan.</p>
+    </div>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-8">
-                                <h5 class="text-muted mb-2">Total Karyawan</h5>
-                                <h2 class="mb-0">{{ $totalEmployees }}</h2>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
+    <div class="row g-4">
+        <!-- Total Karyawan -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 bg-primary text-white hover-effect same-height-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-6">Total Karyawan</div>
+                        <div class="fs-3 fw-bold">{{ $totalEmployees }}</div>
                     </div>
-                    <div class="card-footer bg-white border-0">
-                        <a href="{{ route('employees.index') }}" class="text-decoration-none">
-                            <small class="text-muted">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></small>
-                        </a>
-                    </div>
+                    <div class="fs-2"><i class="fas fa-users"></i></div>
                 </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-8">
-                                <h5 class="text-muted mb-2">Kehadiran Hari Ini</h5>
-                                <h2 class="mb-0">{{ $todayAttendance }}</h2>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-0">
-                        <a href="{{ route('attendances.index') }}" class="text-decoration-none">
-                            <small class="text-muted">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></small>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-8">
-                                <h5 class="text-muted mb-2">Total Gaji Bulan Ini</h5>
-                                <h2 class="mb-0">Rp {{ number_format($totalSalaries, 0, ',', '.') }}</h2>
-                            </div>
-                            <div class="col-4 text-end">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-0">
-                        <a href="{{ route('salaries.index') }}" class="text-decoration-none">
-                            <small class="text-muted">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></small>
-                        </a>
-                    </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{{ route('employees.index') }}" class="text-white text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Absensi Terbaru</h5>
-                        <a href="{{ route('attendances.index') }}" class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </a>
+        <!-- Kehadiran Hari Ini -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 bg-info text-white hover-effect same-height-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-6">Kehadiran Hari Ini</div>
+                        <div class="fs-3 fw-bold">{{ $todayAttendance }}</div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Karyawan</th>
-                                        <th>Tanggal</th>
-                                        <th>Jam Masuk</th>
-                                        <th>Jam Pulang</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($recentAttendances as $attendance)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($attendance->employee->user->name) }}&background=random"
-                                                        class="rounded-circle me-2" width="32" height="32">
-                                                    <div>
-                                                        <span class="fw-bold">{{ $attendance->employee->user->name }}</span>
-                                                        <small
-                                                            class="d-block text-muted">{{ $attendance->employee->position }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
-                                            <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}
-                                            </td>
-                                            <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}
-                                            </td>
-                                            <td>
-                                                @if ($attendance->status == 'hadir')
-                                                    <span class="badge bg-success">Hadir</span>
-                                                @elseif($attendance->status == 'izin')
-                                                    <span class="badge bg-info">Izin</span>
-                                                @elseif($attendance->status == 'sakit')
-                                                    <span class="badge bg-warning">Sakit</span>
-                                                @elseif($attendance->status == 'cuti')
-                                                    <span class="badge bg-primary">Cuti</span>
-                                                @else
-                                                    <span class="badge bg-danger">Alpha</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                    <div class="fs-2"><i class="fas fa-clipboard-check"></i></div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{{ route('attendances.index') }}" class="text-white text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
 
-                                    @if ($recentAttendances->isEmpty())
-                                        <tr>
-                                            <td colspan="5" class="text-center py-3">Belum ada data absensi</td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
+        <!-- Total Gaji Bulan Ini -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 bg-warning text-dark hover-effect same-height-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-6">Total Gaji Bulan Ini</div>
+                        <div class="fs-5 fw-bold">Rp {{ number_format($totalSalaries, 0, ',', '.') }}</div>
                     </div>
+                    <div class="fs-2"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{{ route('salaries.index') }}" class="text-dark text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Absensi Terbaru -->
+    <div class="mt-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                <h5 class="mb-0 fw-bold">Absensi Terbaru</h5>
+                <a href="{{ route('attendances.index') }}" class="btn btn-sm btn-primary">Lihat Semua</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Karyawan</th>
+                                <th>Tanggal</th>
+                                <th>Jam Masuk</th>
+                                <th>Jam Pulang</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($recentAttendances as $attendance)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($attendance->employee->user->name) }}&background=random"
+                                                class="rounded-circle me-2" width="36" height="36">
+                                            <div>
+                                                <strong>{{ $attendance->employee->user->name }}</strong>
+                                                <div class="text-muted small">{{ $attendance->employee->position }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
+                                    <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
+                                    <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
+                                    <td>
+                                        @php
+                                            $statusColors = [
+                                                'hadir' => 'success',
+                                                'izin' => 'info',
+                                                'sakit' => 'warning',
+                                                'cuti' => 'primary',
+                                                'alpha' => 'danger'
+                                            ];
+                                        @endphp
+                                        <span class="badge bg-{{ $statusColors[$attendance->status] ?? 'secondary' }}">
+                                            {{ ucfirst($attendance->status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Belum ada data absensi</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
