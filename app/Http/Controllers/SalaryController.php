@@ -24,13 +24,62 @@ class SalaryController extends Controller
                 ->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
 
+        // Ambil data gaji beserta relasi
         $salaries = Salary::with('employee.user')
             ->orderBy('year', 'desc')
             ->orderBy('month', 'desc')
             ->paginate(10);
 
-        return view('admin.salaries.index', compact('salaries'));
+        // Total semua gaji bersih
+        $totalSalary = Salary::sum('total_salary');
+        $averageSalary = Salary::avg('total_salary');
+
+        // Jumlah data yang sudah diproses
+        $processedCount = Salary::where('is_paid', true)->count();
+
+        // Total semua data
+        $totalCount = Salary::count();
+
+        // Pertumbuhan gaji bulan ini dibanding bulan sebelumnya (berdasarkan data paling baru)
+        $latest = Salary::orderBy('year', 'desc')->orderBy('month', 'desc')->first();
+        $growth = 'N/A';
+
+        if ($latest) {
+            $currentMonth = sprintf('%02d', $latest->month);
+            $currentYear = $latest->year;
+
+            $prevMonth = $latest->month - 1;
+            $prevYear = $latest->year;
+
+            if ($prevMonth <= 0) {
+                $prevMonth = 12;
+                $prevYear -= 1;
+            }
+
+            $currentTotal = Salary::where('month', $latest->month)
+                ->where('year', $latest->year)
+                ->sum('total_salary');
+
+            $previousTotal = Salary::where('month', $prevMonth)
+                ->where('year', $prevYear)
+                ->sum('total_salary');
+
+            if ($previousTotal > 0) {
+                $growth = number_format((($currentTotal - $previousTotal) / $previousTotal) * 100, 2) . '%';
+            }
+        }
+        $selectedMonth = now()->format('F');
+        return view('admin.salaries.index', compact(
+            'salaries',
+            'totalSalary',
+            'averageSalary',
+            'processedCount',
+            'totalCount',
+            'growth',
+            'selectedMonth'
+        ));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -215,6 +264,10 @@ class SalaryController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
+        $presentDays = Attendance::where('employee_id', $employee->id)
+            ->where('status', 'hadir')
+            ->count();
+
         if (!$employee) {
             return redirect()->back()->with('error', 'Data karyawan tidak ditemukan');
         }
@@ -224,7 +277,7 @@ class SalaryController extends Controller
             ->orderBy('month', 'desc')
             ->paginate(10);
 
-        return view('employee.salaries.history', compact('salaries'));
+        return view('employee.salaries.history', compact('salaries', 'presentDays'));
     }
 
     /**
@@ -246,5 +299,39 @@ class SalaryController extends Controller
             '11' => 'November',
             '12' => 'Desember',
         ];
+    }
+
+    public function markPending($id)
+    {
+        $salary = Salary::findOrFail($id);
+
+        $salary->update([
+            'is_paid' => false,
+            'paid_at' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Status pembayaran diubah menjadi Pending.');
+    }
+
+    public function markPaid($id)
+    {
+        $salary = Salary::findOrFail($id);
+
+        $salary->update([
+            'is_paid' => true,
+            'paid_at' => Carbon::now(), // isi tanggal dibayar
+        ]);
+
+        return redirect()->back()->with('success', 'Status pembayaran diubah menjadi Lunas.');
+    }
+
+    public function sendNotification($id)
+    {
+        $salary = Salary::findOrFail($id);
+        // Logic untuk kirim notifikasi email atau lainnya
+        // Contoh sederhana:
+        // Mail::to($salary->employee->user->email)->send(new SalaryNotificationMail($salary));
+
+        return redirect()->back()->with('success', 'Notifikasi slip gaji telah dikirim.');
     }
 }

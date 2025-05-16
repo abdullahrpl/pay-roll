@@ -9,21 +9,28 @@ use App\Models\Attendance;
 use App\Models\Salary;
 use Carbon\Carbon;
 
+
 class DashboardController extends Controller
 {
     /**
      * Show admin dashboard
      */
+
     public function adminDashboard()
     {
-        // Check if user is admin
+        // Cek role admin
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('employee.dashboard')
                 ->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
 
         $totalEmployees = Employee::count();
-        $todayAttendance = Attendance::whereDate('date', Carbon::today())->count();
+        $today = Carbon::today()->toDateString();
+
+        $todayAttendance = Attendance::whereDate('date', $today)
+            ->whereIn('status', ['hadir', 'terlambat']) // hanya hitung yang valid hadir
+            ->count();
+
         $totalSalaries = Salary::whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('total_salary');
@@ -34,13 +41,38 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Generate data chart ringkasan kehadiran per hari di bulan ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $daysInMonth = Carbon::now()->daysInMonth;
+
+        $labels = [];
+        $values = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = $startOfMonth->copy()->addDays($day - 1)->toDateString();
+            $labels[] = $startOfMonth->copy()->addDays($day - 1)->format('d M');
+
+            $count = Attendance::whereDate('date', $date)
+                ->whereIn('status', ['hadir', 'terlambat'])
+                ->count();
+
+            $values[] = $count;
+        }
+
+        $attendanceData = [
+            'labels' => $labels,
+            'values' => $values,
+        ];
+
         return view('admin.dashboard', compact(
             'totalEmployees',
             'todayAttendance',
             'totalSalaries',
-            'recentAttendances'
+            'recentAttendances',
+            'attendanceData'
         ));
     }
+
 
     /**
      * Show employee dashboard

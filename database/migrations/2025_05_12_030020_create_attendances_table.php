@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
-            $table->enum('status', ['hadir', 'izin', 'sakit', 'cuti', 'alpha'])->default('hadir');
+            $table->enum('status', ['hadir', 'terlambat', 'izin', 'sakit', 'cuti', 'alpha'])->default('hadir');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -13,8 +13,9 @@ class AttendanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // $totalAttendances = Attendance::count();
         // Pastikan hanya admin yang bisa akses
         if (Auth::user()->role !== 'admin') {
             return redirect()->route('employee.dashboard')
@@ -24,9 +25,9 @@ class AttendanceController extends Controller
         $attendances = Attendance::with('employee.user')
             ->orderBy('date', 'desc')
             ->orderBy('clock_in', 'desc')
-            ->paginate(10);
+            ->paginate(5);
 
-        return view('admin.attendances.index', compact('attendances'));
+        return view('admin.attendances.index', compact('attendances', 'totalAttendances'));
     }
 
     /**
@@ -136,13 +137,19 @@ class AttendanceController extends Controller
             return redirect()->back()->with('error', 'Data karyawan tidak ditemukan');
         }
 
-        $today = Carbon::today()->format('Y-m-d');
-        $now = Carbon::now()->format('H:i:s');
+        // Gunakan timezone Asia/Jakarta secara eksplisit
+        $now = Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString(); // tanggal hari ini dalam YYYY-MM-DD
 
-        // Check if attendance record for today already exists
+        // Jam masuk standar (08:00)
+        $standardStart = Carbon::createFromTime(8, 0, 0, 'Asia/Jakarta');
+
+        // Cek apakah sudah absen hari ini
         $attendance = Attendance::where('employee_id', $employee->id)
             ->where('date', $today)
             ->first();
+
+        $status = $now->gt($standardStart) ? 'terlambat' : 'hadir';
 
         if ($attendance) {
             if ($attendance->clock_in) {
@@ -150,20 +157,22 @@ class AttendanceController extends Controller
             }
 
             $attendance->update([
-                'clock_in' => $now,
-                'status' => 'hadir'
+                'clock_in' => $now->toTimeString(),
+                'status' => $status
             ]);
         } else {
             Attendance::create([
                 'employee_id' => $employee->id,
                 'date' => $today,
-                'clock_in' => $now,
-                'status' => 'hadir'
+                'clock_in' => $now->toTimeString(),
+                'status' => $status
             ]);
         }
 
-        return redirect()->back()->with('success', 'Presensi masuk berhasil. Waktu: ' . $now);
+        return redirect()->back()->with('success', 'Presensi masuk berhasil. Waktu: ' . $now->format('H:i:s'));
     }
+
+
 
     /**
      * Clock out for employee.
@@ -220,6 +229,34 @@ class AttendanceController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(10);
 
-        return view('employee.attendances.history', compact('attendances'));
+        // Hitung total hari kerja (misal diasumsikan bulan ini 23 hari kerja)
+        $totalWorkDays = 23;
+
+        // Hitung hari hadir (status 'hadir')
+        $presentDays = Attendance::where('employee_id', $employee->id)
+            ->where('status', 'hadir')
+            ->count();
+
+        // Hitung keterlambatan (status 'terlambat' atau sesuai status laten)
+        $lateCount = Attendance::where('employee_id', $employee->id)
+            ->where('status', 'terlambat')
+            ->count();
+
+        $overtimeHours = 0;
+        // Hitung jam lembur, asumsi ada kolom 'overtime_hours' di table attendances
+        $overtimeHours = Attendance::where('employee_id', $employee->id)
+            ->sum('overtime_hours');
+
+        // Data jam lembur bulan lalu, misalnya hardcode dulu
+        $lastMonthOvertime = 3.5;
+
+        return view('employee.attendances.history', compact(
+            'attendances',
+            'totalWorkDays',
+            'presentDays',
+            'lateCount',
+            'overtimeHours',
+            'lastMonthOvertime'
+        ));
     }
 }

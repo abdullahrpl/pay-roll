@@ -3,122 +3,127 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
-<div class="container py-4">
-    <div class="mb-4">
-        <h2 class="fw-bold">Dashboard Admin</h2>
-        <p class="text-muted">Selamat datang di panel admin sistem penggajian karyawan.</p>
-    </div>
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+        </div>
 
-    <div class="row g-4">
-        <!-- Total Karyawan -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-lg rounded-4 bg-primary text-white hover-effect same-height-card">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fs-6">Total Karyawan</div>
-                        <div class="fs-3 fw-bold">{{ $totalEmployees }}</div>
-                    </div>
-                    <div class="fs-2"><i class="fas fa-users"></i></div>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Total Karyawan</h3>
+                    <i class="fa fa-users text-gray-400"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{{ route('employees.index') }}" class="text-white text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
+                <p class="text-2xl font-bold">{{ $totalEmployees }}</p>
+                <p class="text-xs text-gray-500 mt-1">+{{ $totalEmployees }} dari bulan lalu</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Kehadiran Hari Ini</h3>
+                    <i class="fa fa-clock text-gray-400"></i>
                 </div>
+                <p class="text-2xl font-bold">{{ $todayAttendance }}</p>
+                <p class="text-xs text-gray-500 mt-1">93% tingkat kehadiran</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Total Gaji Bulan Ini</h3>
+                    <i class="fa fa-dollar text-gray-400"></i>
+                </div>
+                <p class="text-2xl font-bold">Rp {{ number_format($totalSalaries, 0, ',', '.') }}</p>
+                <p class="text-xs text-gray-500 mt-1">+2.5% dari bulan lalu</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Pengajuan Menunggu</h3>
+                    <i class="fa fa-calendar text-gray-400"></i>
+                </div>
+                <p class="text-2xl font-bold">{{ $pendingApprovals ?? 0 }}</p>
+                <p class="text-xs text-gray-500 mt-1">Izin & permintaan cuti</p>
             </div>
         </div>
 
-        <!-- Kehadiran Hari Ini -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-lg rounded-4 bg-info text-white hover-effect same-height-card">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fs-6">Kehadiran Hari Ini</div>
-                        <div class="fs-3 fw-bold">{{ $todayAttendance }}</div>
-                    </div>
-                    <div class="fs-2"><i class="fas fa-clipboard-check"></i></div>
-                </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{{ route('attendances.index') }}" class="text-white text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
+        <!-- Attendance Overview and Recent Activities -->
+        <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm lg:col-span-4">
+                <h3 class="font-medium mb-1">Ringkasan Kehadiran</h3>
+                <p class="text-sm text-gray-500 mb-4">Kehadiran harian bulan ini</p>
+                <div class="h-64 flex items-center justify-center bg-gray-100 rounded-md">
+                    <canvas id="attendanceChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- Total Gaji Bulan Ini -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-lg rounded-4 bg-warning text-dark hover-effect same-height-card">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fs-6">Total Gaji Bulan Ini</div>
-                        <div class="fs-5 fw-bold">Rp {{ number_format($totalSalaries, 0, ',', '.') }}</div>
-                    </div>
-                    <div class="fs-2"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{{ route('salaries.index') }}" class="text-dark text-decoration-underline small">Lihat Detail <i class="fas fa-arrow-right ms-1"></i></a>
+            <div class="bg-white p-6 rounded-lg shadow-sm lg:col-span-3">
+                <h3 class="font-medium mb-1">Aktivitas Terbaru</h3>
+                <p class="text-sm text-gray-500 mb-4">Aktivitas karyawan terakhir</p>
+                <div class="space-y-4">
+                    @forelse ($recentAttendances as $attendance)
+                        <div class="flex items-center">
+                            <div
+                                class="w-2 h-2 rounded-full {{ $attendance->status === 'hadir' ? 'bg-green-500' : ($attendance->status === 'sakit' ? 'bg-yellow-500' : ($attendance->status === 'cuti' ? 'bg-blue-500' : 'bg-red-500')) }} mr-3">
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">{{ $attendance->employee->user->name }} clock in</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ \Carbon\Carbon::parse($attendance->clock_in)->format('d M Y H:i') }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500">Tidak ada aktivitas terbaru</p>
+                    @endforelse
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
 
-    <!-- Absensi Terbaru -->
-    <div class="mt-5">
-        <div class="card shadow-lg border-0 rounded-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
-                <h5 class="mb-0 fw-bold">Absensi Terbaru</h5>
-                <a href="{{ route('attendances.index') }}" class="btn btn-sm btn-primary">Lihat Semua</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Karyawan</th>
-                                <th>Tanggal</th>
-                                <th>Jam Masuk</th>
-                                <th>Jam Pulang</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentAttendances as $attendance)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($attendance->employee->user->name) }}&background=random"
-                                                class="rounded-circle me-2" width="36" height="36">
-                                            <div>
-                                                <strong>{{ $attendance->employee->user->name }}</strong>
-                                                <div class="text-muted small">{{ $attendance->employee->position }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
-                                    <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
-                                    <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
-                                    <td>
-                                        @php
-                                            $statusColors = [
-                                                'hadir' => 'success',
-                                                'izin' => 'info',
-                                                'sakit' => 'warning',
-                                                'cuti' => 'primary',
-                                                'alpha' => 'danger'
-                                            ];
-                                        @endphp
-                                        <span class="badge bg-{{ $statusColors[$attendance->status] ?? 'secondary' }}">
-                                            {{ ucfirst($attendance->status) }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">Belum ada data absensi</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($attendanceData['labels']),
+                datasets: [{
+                    label: 'Jumlah Kehadiran',
+                    data: @json($attendanceData['values']),
+                    fill: true,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

@@ -3,106 +3,127 @@
 @section('title', 'Tambah Absensi')
 
 @section('content')
-    <div class="container-fluid p-0">
-        <div class="row mb-4 mt-4">
-            <div class="col-12">
-                <h1 class="h3 fw-bold text-dark">Tambah Absensi</h1>
-                <p class="text-muted">Tambahkan data absensi karyawan.</p>
-            </div>
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex items-center gap-2 mb-6">
+            <a href="{{ route('attendances.index') }}" class="p-2 bg-white border rounded-md text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">Tambah Absensi</h1>
         </div>
 
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 hover-effect">
-                    <div class="card-header bg-white border-bottom">
-                        <h5 class="mb-0 fw-semibold text-primary">📝 Form Tambah Absensi</h5>
+        <!-- Form Card -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden w-full">
+            <div class="p-6 border-b">
+                <h2 class="text-lg font-medium text-primary-600">📝 Form Tambah Absensi</h2>
+                <p class="text-sm text-gray-500 mt-1">Tambahkan data absensi karyawan.</p>
+            </div>
+
+            <form action="{{ route('attendances.store') }}" method="POST" class="p-6 space-y-4">
+                @csrf
+
+                <div class="space-y-2">
+                    <label for="employee_id" class="block text-sm font-medium text-gray-700">Karyawan</label>
+                    <select id="employee_id" name="employee_id" required
+                        class="w-full p-2 border rounded-md @error('employee_id') border-red-500 @enderror">
+                        <option value="">Pilih Karyawan</option>
+                        @foreach ($employees as $employee)
+                            <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->user->name }} - {{ $employee->nip }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('employee_id')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="space-y-2">
+                    <label for="date" class="block text-sm font-medium text-gray-700">Tanggal</label>
+                    <input type="date" id="date" name="date" required value="{{ old('date') ?? date('Y-m-d') }}"
+                        class="w-full p-2 border rounded-md @error('date') border-red-500 @enderror" />
+                    @error('date')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label for="clock_in" class="block text-sm font-medium text-gray-700">Jam Masuk</label>
+                        <input type="time" id="clock_in" name="clock_in" value="{{ old('clock_in') }}"
+                            class="w-full p-2 border rounded-md @error('clock_in') border-red-500 @enderror" />
+                        @error('clock_in')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <div class="card-body">
-                        <form action="{{ route('attendances.store') }}" method="POST">
-                            @csrf
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label for="employee_id" class="form-label fw-semibold">Karyawan</label>
-                                    <select class="form-select @error('employee_id') is-invalid @enderror" id="employee_id"
-                                        name="employee_id" required>
-                                        <option value="">Pilih Karyawan</option>
-                                        @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}"
-                                                {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                                {{ $employee->user->name }} - {{ $employee->nip }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('employee_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="date" class="form-label fw-semibold">Tanggal</label>
-                                    <input type="date" class="form-control @error('date') is-invalid @enderror"
-                                        id="date" name="date" value="{{ old('date') ?? date('Y-m-d') }}" required>
-                                    @error('date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label fw-semibold">Status</label>
-                                    <select class="form-select @error('status') is-invalid @enderror" id="status"
-                                        name="status" required>
-                                        <option value="hadir" {{ old('status') == 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                        <option value="izin" {{ old('status') == 'izin' ? 'selected' : '' }}>Izin</option>
-                                        <option value="sakit" {{ old('status') == 'sakit' ? 'selected' : '' }}>Sakit</option>
-                                        <option value="cuti" {{ old('status') == 'cuti' ? 'selected' : '' }}>Cuti</option>
-                                        <option value="alpha" {{ old('status') == 'alpha' ? 'selected' : '' }}>Alpha</option>
-                                    </select>
-                                    @error('status')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label for="clock_in" class="form-label fw-semibold">Jam Masuk</label>
-                                    <input type="time" class="form-control @error('clock_in') is-invalid @enderror"
-                                        id="clock_in" name="clock_in" value="{{ old('clock_in') }}">
-                                    @error('clock_in')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="clock_out" class="form-label fw-semibold">Jam Pulang</label>
-                                    <input type="time" class="form-control @error('clock_out') is-invalid @enderror"
-                                        id="clock_out" name="clock_out" value="{{ old('clock_out') }}">
-                                    @error('clock_out')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="notes" class="form-label fw-semibold">Keterangan</label>
-                                <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes"
-                                    rows="3">{{ old('notes') }}</textarea>
-                                @error('notes')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="d-flex justify-content-end gap-2 mt-4">
-                                <a href="{{ route('attendances.index') }}" class="btn btn-outline-secondary">Batal</a>
-                                <button type="submit" class="btn btn-primary">Simpan</button>
-                            </div>
-                        </form>
+                    <div class="space-y-2">
+                        <label for="clock_out" class="block text-sm font-medium text-gray-700">Jam Pulang</label>
+                        <input type="time" id="clock_out" name="clock_out" value="{{ old('clock_out') }}"
+                            class="w-full p-2 border rounded-md @error('clock_out') border-red-500 @enderror" />
+                        @error('clock_out')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
-            </div>
+
+                <div class="space-y-2">
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status" required
+                        class="w-full p-2 border rounded-md @error('status') border-red-500 @enderror">
+                        <option value="">Pilih Status</option>
+                        <option value="hadir" {{ old('status') == 'hadir' ? 'selected' : '' }}>Hadir</option>
+                        <option value="izin" {{ old('status') == 'izin' ? 'selected' : '' }}>Izin</option>
+                        <option value="sakit" {{ old('status') == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                        <option value="cuti" {{ old('status') == 'cuti' ? 'selected' : '' }}>Cuti</option>
+                        <option value="alpha" {{ old('status') == 'alpha' ? 'selected' : '' }}>Alpha</option>
+                    </select>
+                    @error('status')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="space-y-2">
+                    <label for="notes" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                    <textarea id="notes" name="notes" rows="3"
+                        class="w-full p-2 border rounded-md @error('notes') border-red-500 @enderror">{{ old('notes') }}</textarea>
+                    @error('notes')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="pt-6 bg-gray-50 border-t flex justify-end gap-2">
+                    <a href="{{ route('attendances.index') }}"
+                        class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">
+                        Batal
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                        Simpan
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
+    </main>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 @endsection

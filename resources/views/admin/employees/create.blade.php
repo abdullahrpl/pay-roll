@@ -3,122 +3,168 @@
 @section('title', 'Tambah Karyawan')
 
 @section('content')
-<div class="container-fluid p-0">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 fw-bold text-dark">👥 Tambah Karyawan</h1>
-            <p class="text-muted">Isi data lengkap untuk menambahkan karyawan baru.</p>
+    <main class="flex-1 overflow-y-auto p-6 bg-gray-50 min-h-screen">
+        <div class="flex items-center gap-2 mb-6">
+            <a href="{{ route('employees.index') }}"
+                class="p-2 bg-white border rounded-md text-gray-700 hover:bg-gray-50 shadow-sm">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">Tambah Karyawan</h1>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-primary fw-semibold">📝 Form Tambah Karyawan</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('employees.store') }}" method="POST" novalidate>
-                        @csrf
-
-                        {{-- Nama & Email --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name') }}" required>
-                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}" required>
-                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        {{-- Password & NIP --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    id="password" name="password" required>
-                                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="nip" class="form-label">NIP</label>
-                                <input type="text" class="form-control @error('nip') is-invalid @enderror"
-                                    id="nip" name="nip" value="{{ old('nip') }}" required>
-                                @error('nip')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        {{-- Jabatan & Departemen --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="position" class="form-label">Jabatan</label>
-                                <input type="text" class="form-control @error('position') is-invalid @enderror"
-                                    id="position" name="position" value="{{ old('position') }}" required>
-                                @error('position')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="department" class="form-label">Departemen</label>
-                                <input type="text" class="form-control @error('department') is-invalid @enderror"
-                                    id="department" name="department" value="{{ old('department') }}" required>
-                                @error('department')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        {{-- Telepon & Tanggal Masuk --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="phone_number" class="form-label">Nomor Telepon</label>
-                                <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
-                                    id="phone_number" name="phone_number" value="{{ old('phone_number') }}" required>
-                                @error('phone_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="join_date" class="form-label">Tanggal Bergabung</label>
-                                <input type="date" class="form-control @error('join_date') is-invalid @enderror"
-                                    id="join_date" name="join_date" value="{{ old('join_date') ?? date('Y-m-d') }}" required>
-                                @error('join_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        {{-- Gaji --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="basic_salary" class="form-label">Gaji Pokok</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control @error('basic_salary') is-invalid @enderror"
-                                        id="basic_salary" name="basic_salary" value="{{ old('basic_salary') }}" required>
-                                    @error('basic_salary')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Alamat --}}
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Alamat</label>
-                            <textarea class="form-control @error('address') is-invalid @enderror"
-                                id="address" name="address" rows="3" required>{{ old('address') }}</textarea>
-                            @error('address')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-
-                        {{-- Tombol --}}
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary me-2">
-                                <i class="fas fa-times"></i> Batal
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6 border-b">
+                <h2 class="text-lg font-medium text-gray-900">Informasi Karyawan</h2>
+                <p class="text-sm text-gray-500 mt-1">Isi data lengkap untuk menambahkan karyawan baru.</p>
             </div>
+
+            <form action="{{ route('employees.store') }}" method="POST" novalidate class="p-6 space-y-8">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Personal Information --}}
+                    <div class="space-y-6">
+                        <h3 class="font-medium text-gray-900">Informasi Pribadi</h3>
+
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                            <input type="text" name="name" id="name" value="{{ old('name') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('name') border-red-500 @enderror"
+                                required>
+                            @error('name')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" name="email" id="email" value="{{ old('email') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('email') border-red-500 @enderror"
+                                required>
+                            @error('email')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="phone_number" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                            <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('phone_number') border-red-500 @enderror"
+                                required>
+                            @error('phone_number')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="join_date" class="block text-sm font-medium text-gray-700">Tanggal Bergabung</label>
+                            <input type="date" name="join_date" id="join_date"
+                                value="{{ old('join_date') ?? date('Y-m-d') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500" @error('join_date') border-red-500 @enderror"
+                                required>
+                            @error('join_date')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700">Alamat</label>
+                            <textarea name="address" id="address" rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('address') border-red-500 @enderror"
+                                required rows="3">{{ old('address') }}</textarea>
+                            @error('address')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Employment Information --}}
+                    <div class="space-y-6">
+                        <h3 class="font-medium text-gray-900">Informasi Pekerjaan</h3>
+
+                        <div>
+                            <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+                            <input type="text" name="nip" id="nip" value="{{ old('nip') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('nip') border-red-500 @enderror"
+                                required>
+                            @error('nip')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="department" class="block text-sm font-medium text-gray-700">Departemen</label>
+                            <input type="text" name="department" id="department" value="{{ old('department') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('department') border-red-500 @enderror"
+                                required>
+                            @error('department')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="position" class="block text-sm font-medium text-gray-700">Jabatan</label>
+                            <input type="text" name="position" id="position" value="{{ old('position') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('position') border-red-500 @enderror"
+                                required>
+                            @error('position')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="basic_salary" class="block text-sm font-medium text-gray-700">Gaji Pokok</label>
+                            <input type="number" name="basic_salary" id="basic_salary" value="{{ old('basic_salary') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('basic_salary') border-red-500 @enderror"
+                                required>
+                            @error('basic_salary')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password Awal</label>
+                            <input type="password" name="password" id="password"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-primary-200 focus:outline-none focus:border-primary-500 @error('password') border-red-500 @enderror"
+                                required>
+                            <p class="text-xs text-gray-500 mt-1">Karyawan akan diminta ganti saat login pertama kali</p>
+                            @error('password')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <a href="{{ route('employees.index') }}"
+                        class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Batal</a>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Tambah Karyawan</button>
+                </div>
+            </form>
         </div>
-    </div>
-</div>
+    </main>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 @endsection

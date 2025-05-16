@@ -41,6 +41,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Salary Management
     Route::resource('salaries', SalaryController::class);
     Route::get('/salaries/{salary}/payslip', [SalaryController::class, 'generatePayslip'])->name('salaries.payslip');
+    Route::post('/salaries/{salary}/send-notification', [SalaryController::class, 'sendNotification'])->name('salaries.sendNotification');
+    Route::post('/salaries/{salary}/mark-pending', [SalaryController::class, 'markPending'])->name('salaries.markPending');
+    Route::post('/salaries/{salary}/mark-paid', [SalaryController::class, 'markPaid'])->name('salaries.markPaid');
 });
 
 // Employee Routes

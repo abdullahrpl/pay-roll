@@ -3,88 +3,126 @@
 @section('title', 'Detail Absensi')
 
 @section('content')
-<div class="container-fluid p-0">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 fw-bold text-dark">📄 Detail Absensi</h1>
-                <p class="text-muted">Informasi lengkap absensi karyawan.</p>
-            </div>
-            <div>
-                <a href="{{ route('attendances.edit', $attendance->id) }}" class="btn btn-primary me-2 d-flex align-items-center gap-2">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-                <a href="{{ route('attendances.index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
-                    <i class="fas fa-arrow-left"></i> Kembali
-                </a>
-            </div>
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex items-center gap-2 mb-6">
+            <a href="{{ route('attendances.index') }}" class="p-2 bg-white border rounded-md text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-2xl font-bold">Attendance Details</h1>
         </div>
-    </div>
 
-    <div class="row g-4">
-        <!-- Karyawan -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 fw-semibold text-primary">👤 Informasi Karyawan</h5>
-                </div>
-                <div class="card-body text-center">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($attendance->employee->user->name) }}&background=random&size=128"
-                        alt="Profile" class="rounded-circle mb-3 shadow" width="150" height="150">
-                    <h5 class="mb-0 fw-bold">{{ $attendance->employee->user->name }}</h5>
-                    <p class="text-muted mb-1">{{ $attendance->employee->position }}</p>
-                    <p class="small text-muted mb-3">{{ $attendance->employee->department }}</p>
-
-                    <hr>
-                    <div class="text-start">
-                        <div class="mb-3">
-                            <small class="text-muted fw-semibold">NIP</small>
-                            <p class="mb-0">{{ $attendance->employee->nip }}</p>
-                        </div>
-                        <div>
-                            <small class="text-muted fw-semibold">Email</small>
-                            <p class="mb-0">{{ $attendance->employee->user->email }}</p>
-                        </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden max-w-3xl mx-auto">
+            <div class="p-6 border-b">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h2 class="text-lg font-medium">{{ \Carbon\Carbon::parse($attendance->date)->format('F d, Y') }}</h2>
+                        <p class="text-sm text-gray-500 mt-1">{{ \Carbon\Carbon::parse($attendance->date)->format('l') }}
+                        </p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        @php
+                            $statusClasses = [
+                                'hadir' => 'bg-green-100 text-green-800',
+                                'izin' => 'bg-blue-100 text-blue-800',
+                                'sakit' => 'bg-yellow-100 text-yellow-800',
+                                'cuti' => 'bg-purple-100 text-purple-800',
+                                'alpha' => 'bg-red-100 text-red-800',
+                            ];
+                            $statusLabel = ucfirst($attendance->status);
+                        @endphp
+                        <span
+                            class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full {{ $statusClasses[$attendance->status] ?? 'bg-gray-100 text-gray-800' }}">
+                            {{ $statusLabel }}
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Absensi -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 fw-semibold text-primary">📆 Informasi Absensi</h5>
-                </div>
-                <div class="card-body">
-                    @php
-                        $info = [
-                            'Tanggal' => \Carbon\Carbon::parse($attendance->date)->format('d F Y'),
-                            'Status' => match($attendance->status) {
-                                'hadir' => '<span class="badge bg-success">Hadir</span>',
-                                'izin' => '<span class="badge bg-info">Izin</span>',
-                                'sakit' => '<span class="badge bg-warning">Sakit</span>',
-                                'cuti' => '<span class="badge bg-primary">Cuti</span>',
-                                default => '<span class="badge bg-danger">Alpha</span>',
-                            },
-                            'Jam Masuk' => $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-',
-                            'Jam Pulang' => $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-',
-                            'Durasi Kerja' => $attendance->clock_in && $attendance->clock_out ? $attendance->getDurationAttribute() . ' jam' : '-',
-                            'Keterangan' => $attendance->notes ?: '-',
-                            'Dibuat Pada' => $attendance->created_at->format('d F Y H:i'),
-                            'Diperbarui Pada' => $attendance->updated_at->format('d F Y H:i'),
-                        ];
-                    @endphp
-
-                    @foreach($info as $label => $value)
-                        <div class="row py-2 border-bottom">
-                            <div class="col-sm-4 fw-semibold text-muted">{{ $label }}</div>
-                            <div class="col-sm-8">{!! $value !!}</div>
+            <div class="p-6 space-y-6">
+                <!-- Clock In/Out Times -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 border rounded-md bg-gray-50">
+                        <div class="flex items-center">
+                            <div
+                                class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Clock In</p>
+                                <p class="text-lg font-medium">
+                                    {{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('h:i A') : '-' }}
+                                </p>
+                            </div>
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="p-4 border rounded-md bg-gray-50">
+                        <div class="flex items-center">
+                            <div
+                                class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-4">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Clock Out</p>
+                                <p class="text-lg font-medium">
+                                    {{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('h:i A') : '-' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Working Hours -->
+                <div class="p-4 border rounded-md">
+                    <div class="flex items-center mb-4">
+                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Working Hours</p>
+                            <p class="text-lg font-medium">
+                                {{ $attendance->clock_in && $attendance->clock_out ? $attendance->getDurationAttribute() . ' hours' : '-' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                        <span>0h</span>
+                        <span>Required: 8h</span>
+                        <span>12h</span>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="p-4 border rounded-md">
+                    <h3 class="font-medium mb-2">Location</h3>
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-500">Clock In Location:</span>
+                            <span class="text-sm">{{ $attendance->clock_in_location ?? '-' }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-500">Clock Out Location:</span>
+                            <span class="text-sm">{{ $attendance->clock_out_location ?? '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="p-4 border rounded-md">
+                    <h3 class="font-medium mb-2">Notes</h3>
+                    <p class="text-sm text-gray-600">{{ $attendance->notes ?: 'No notes for this attendance record.' }}</p>
                 </div>
             </div>
+
+            <div class="p-6 bg-gray-50 border-t flex justify-end">
+                <a href="{{ route('attendances.index') }}"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Back to History
+                </a>
+            </div>
         </div>
-    </div>
-</div>
+    </main>
+
 @endsection
