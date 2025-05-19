@@ -27,7 +27,7 @@ class AttendanceController extends Controller
             ->orderBy('clock_in', 'desc')
             ->paginate(5);
 
-        return view('admin.attendances.index', compact('attendances', 'totalAttendances'));
+        return view('admin.attendances.index', compact('attendances'));
     }
 
     /**
