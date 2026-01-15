@@ -67,7 +67,7 @@ php artisan serve
 ```
 
 <br></br>
-## 👤 Akun Demo (Jika Ada)
+## 👤 Akun Demo 
 
 ### Admin
 
@@ -106,3 +106,4 @@ git push origin fitur-anda
 ## 📄 Lisensi
 
 Proyek ini berlisensi [MIT License](https://opensource.org/licenses/MIT)
+
